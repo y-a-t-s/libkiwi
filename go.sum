@@ -1,4 +1,4 @@
-github.com/y-a-t-s/firebird v0.0.0-20240702142028-fc2f2361cb95 h1:fEW4GHrwit5YdsY6GhNYjmHSHcS1fKvs1DwLvD4Vd4s=
-github.com/y-a-t-s/firebird v0.0.0-20240702142028-fc2f2361cb95/go.mod h1:8S1hx2sI8odLiO0KNDpGLzH5MePuTco7u8q29wlFzGQ=
-golang.org/x/net v0.20.0 h1:aCL9BSgETF1k+blQaYUBx9hJ9LOGP3gAVemcZlf1Kpo=
-golang.org/x/net v0.20.0/go.mod h1:z8BVo6PvndSri0LbOE3hAn0apkU+1YvI6E70E9jsnvY=
+github.com/y-a-t-s/firebird v0.0.0-20240826182749-4000da15aa11 h1:K9RQObDfoXwiSSwxDYA8iRQeBCEQuxIJMtgXxzs4JdI=
+github.com/y-a-t-s/firebird v0.0.0-20240826182749-4000da15aa11/go.mod h1:iaOF6bre/MgFaBH513kb3RxcJ+x8vSPPAeOjN7RNkn8=
+golang.org/x/net v0.28.0 h1:a9JDOJc5GMUJ0+UDqmLT86WiEy7iWyIhz8gz8E4e5hE=
+golang.org/x/net v0.28.0/go.mod h1:yqtgsTWOOnlGLG9GFRrK3++bGOUEkNBoHZc8MEDWPNg=

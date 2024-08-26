@@ -87,7 +87,7 @@ func (kf *KF) RefreshSession() (tk string, err error) {
 }
 
 func (kf *KF) solveKiwiFlare() error {
-	c, err := firebird.NewChallenge(kf.client)
+	c, err := firebird.NewChallenge(kf.client, kf.domain.String())
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (kf *KF) solveKiwiFlare() error {
 	if err != nil {
 		return err
 	}
-	_, err = firebird.Submit(kf.client, s)
+	_, err = firebird.Submit(kf.client, kf.domain.String(), s)
 	if err != nil {
 		return err
 	}
