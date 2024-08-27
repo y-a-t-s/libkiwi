@@ -10,7 +10,7 @@ import (
 )
 
 type KF struct {
-	client http.Client
+	Client http.Client
 	domain *url.URL
 }
 
@@ -32,7 +32,7 @@ func NewKF(hc http.Client, host string, cookies string) (kf *KF, err error) {
 	hc.Jar = jar
 
 	kf = &KF{
-		client: hc,
+		Client: hc,
 		domain: u,
 	}
 
@@ -51,7 +51,7 @@ func (kf *KF) GetPage(u *url.URL) (resp *http.Response, err error) {
 	}
 	// req.Header.Set("Cookie", kf.cookies)
 
-	resp, err = kf.client.Do(req)
+	resp, err = kf.Client.Do(req)
 	if err != nil {
 		return
 	}
@@ -71,7 +71,7 @@ func (kf *KF) GetPage(u *url.URL) (resp *http.Response, err error) {
 
 func (kf *KF) RefreshSession() (tk string, err error) {
 	// Clear any existing session token to request a new one.
-	kf.client.Jar.(*KiwiJar).SetCookie(kf.domain, &http.Cookie{
+	kf.Client.Jar.(*KiwiJar).SetCookie(kf.domain, &http.Cookie{
 		Name:  "xf_session",
 		Value: "",
 	})
@@ -87,7 +87,7 @@ func (kf *KF) RefreshSession() (tk string, err error) {
 }
 
 func (kf *KF) solveKiwiFlare() error {
-	c, err := firebird.NewChallenge(kf.client, kf.domain.String())
+	c, err := firebird.NewChallenge(kf.Client, kf.domain.String())
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (kf *KF) solveKiwiFlare() error {
 	if err != nil {
 		return err
 	}
-	_, err = firebird.Submit(kf.client, kf.domain.String(), s)
+	_, err = firebird.Submit(kf.Client, kf.domain.String(), s)
 	if err != nil {
 		return err
 	}

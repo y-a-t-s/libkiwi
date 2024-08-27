@@ -3,15 +3,16 @@ package libkiwi
 import (
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"testing"
 )
 
-const HOST string = "kiwifarms.st"
+const TEST_HOST = "kiwifarms.st"
 
 func TestGetPage(t *testing.T) {
 	cookies := os.Getenv("TEST_COOKIES")
-	kf, err := NewKF(http.Client{}, HOST, cookies)
+	kf, err := NewKF(http.Client{}, TEST_HOST, cookies)
 	if err != nil {
 		t.Error(err)
 	}
@@ -32,7 +33,7 @@ func TestGetPage(t *testing.T) {
 
 func TestRefreshSession(t *testing.T) {
 	cookies := os.Getenv("TEST_COOKIES")
-	kf, err := NewKF(http.Client{}, HOST, cookies)
+	kf, err := NewKF(http.Client{}, TEST_HOST, cookies)
 	if err != nil {
 		t.Error(err)
 	}
@@ -42,4 +43,17 @@ func TestRefreshSession(t *testing.T) {
 		t.Error(err)
 	}
 	log.Println("New xf_session token: " + tk)
+}
+
+func TestCookieString(t *testing.T) {
+	cookies := os.Getenv("TEST_COOKIES")
+	kf, err := NewKF(http.Client{}, TEST_HOST, cookies)
+	if err != nil {
+		t.Error(err)
+	}
+	u, err := url.Parse("https://" + TEST_HOST)
+	if err != nil {
+		t.Error(err)
+	}
+	log.Println("Cookies from jar: " + kf.Client.Jar.(*KiwiJar).CookieString(u))
 }

@@ -1,6 +1,7 @@
 package libkiwi
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"sync"
@@ -76,6 +77,17 @@ func (kj *KiwiJar) Cookies(u *url.URL) []*http.Cookie {
 	}()
 
 	return <-res
+}
+
+func (kj *KiwiJar) CookieString(u *url.URL) (cookies string) {
+	cs := kj.Cookies(u)
+	for _, c := range cs {
+		cookies += fmt.Sprintf("; %s=%s", c.Name, c.Value)
+	}
+	// Remove leading semicolon+space.
+	cookies = cookies[2:]
+
+	return
 }
 
 func (kj *KiwiJar) GetCookie(u *url.URL, name string) *http.Cookie {
