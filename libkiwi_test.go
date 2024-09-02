@@ -1,6 +1,7 @@
 package libkiwi
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"net/url"
@@ -16,8 +17,12 @@ func TestGetPage(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	log.Println("Getting homepage")
-	resp, err := kf.GetPage(kf.domain)
+	resp, err := kf.GetPage(ctx, kf.domain)
 	if err != nil {
 		t.Error(err)
 	}
@@ -37,11 +42,16 @@ func TestRefreshSession(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	log.Println("Refreshing xf_session")
-	tk, err := kf.RefreshSession()
+	tk, err := kf.RefreshSession(ctx)
 	if err != nil {
 		t.Error(err)
 	}
+
 	log.Println("New xf_session token: " + tk)
 }
 
@@ -51,9 +61,11 @@ func TestCookieString(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	u, err := url.Parse("https://" + TEST_HOST)
 	if err != nil {
 		t.Error(err)
 	}
+
 	log.Println("Cookies from jar: " + kf.Client.Jar.(*KiwiJar).CookieString(u))
 }

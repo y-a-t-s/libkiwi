@@ -1,6 +1,7 @@
 package libkiwi
 
 import (
+	"context"
 	"errors"
 	"net/http"
 	"net/url"
@@ -39,17 +40,16 @@ func NewKF(hc http.Client, host string, cookies string) (kf *KF, err error) {
 	return
 }
 
-func (kf *KF) GetPage(u *url.URL) (resp *http.Response, err error) {
+func (kf *KF) GetPage(ctx context.Context, u *url.URL) (resp *http.Response, err error) {
 	if u == nil {
 		err = errors.New("Received nil URL.")
 		return
 	}
 
-	req, err := http.NewRequest("GET", u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
 	if err != nil {
 		return
 	}
-	// req.Header.Set("Cookie", kf.cookies)
 
 	resp, err = kf.Client.Do(req)
 	if err != nil {
@@ -58,25 +58,25 @@ func (kf *KF) GetPage(u *url.URL) (resp *http.Response, err error) {
 
 	// KiwiFlare redirect is signaled by 203 status.
 	if resp.StatusCode == 203 {
-		err = kf.solveKiwiFlare()
+		err = kf.solveKiwiFlare(ctx)
 		if err != nil {
 			return
 		}
 		// Try fetching the page again now that we're authed.
-		return kf.GetPage(u)
+		return kf.GetPage(ctx, u)
 	}
 
 	return
 }
 
-func (kf *KF) RefreshSession() (tk string, err error) {
+func (kf *KF) RefreshSession(ctx context.Context) (tk string, err error) {
 	// Clear any existing session token to request a new one.
 	kf.Client.Jar.(*KiwiJar).SetCookie(kf.domain, &http.Cookie{
 		Name:  "xf_session",
 		Value: "",
 	})
 
-	resp, err := kf.GetPage(kf.domain)
+	resp, err := kf.GetPage(ctx, kf.domain)
 	if err != nil {
 		return
 	}
@@ -86,12 +86,12 @@ func (kf *KF) RefreshSession() (tk string, err error) {
 	return
 }
 
-func (kf *KF) solveKiwiFlare() error {
+func (kf *KF) solveKiwiFlare(ctx context.Context) error {
 	c, err := firebird.NewChallenge(kf.Client, kf.domain.String())
 	if err != nil {
 		return err
 	}
-	s, err := firebird.Solve(c)
+	s, err := firebird.Solve(ctx, c)
 	if err != nil {
 		return err
 	}

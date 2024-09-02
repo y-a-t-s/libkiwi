@@ -39,7 +39,7 @@ func NewKiwiJar(domain *url.URL, cookies string) (kj *KiwiJar, err error) {
 }
 
 func (kj *KiwiJar) checkAlloc(u *url.URL) {
-	if kj.cookieMap == nil || kj.cookieMap[u.Host] == nil {
+	if kj.cookieMap == nil || kj.cookieMap[u.Hostname()] == nil {
 		kj.newDomain(u)
 	}
 }
@@ -55,16 +55,17 @@ func (kj *KiwiJar) SetCookies(u *url.URL, cookies []*http.Cookie) {
 func (kj *KiwiJar) Cookies(u *url.URL) []*http.Cookie {
 	kj.checkAlloc(u)
 
+	hn := u.Hostname()
 	res := make(chan []*http.Cookie, 1)
 
 	go func() {
 		kj.mutex.Lock()
 		defer kj.mutex.Unlock()
 
-		cl := len(kj.cookieMap[u.Host])
+		cl := len(kj.cookieMap[hn])
 		cs := make([]*http.Cookie, cl)
 		i := 0
-		for _, c := range kj.cookieMap[u.Host] {
+		for _, c := range kj.cookieMap[hn] {
 			if i >= cl {
 				break
 			}
@@ -84,8 +85,10 @@ func (kj *KiwiJar) CookieString(u *url.URL) (cookies string) {
 	for _, c := range cs {
 		cookies += fmt.Sprintf("; %s=%s", c.Name, c.Value)
 	}
-	// Remove leading semicolon+space.
-	cookies = cookies[2:]
+	if len(cookies) > 2 {
+		// Remove leading semicolon+space.
+		cookies = cookies[2:]
+	}
 
 	return
 }
@@ -99,7 +102,7 @@ func (kj *KiwiJar) GetCookie(u *url.URL, name string) *http.Cookie {
 		kj.mutex.Lock()
 		defer kj.mutex.Unlock()
 
-		res <- kj.cookieMap[u.Host][name]
+		res <- kj.cookieMap[u.Hostname()][name]
 	}()
 
 	return <-res
@@ -114,7 +117,7 @@ func (kj *KiwiJar) SetCookie(u *url.URL, cookie *http.Cookie) {
 		kj.mutex.Lock()
 		defer kj.mutex.Unlock()
 
-		kj.cookieMap[u.Host][cookie.Name] = cookie
+		kj.cookieMap[u.Hostname()][cookie.Name] = cookie
 		done <- true
 	}()
 
@@ -132,7 +135,7 @@ func (kj *KiwiJar) newDomain(domain *url.URL) {
 		kj.mutex.Lock()
 		defer kj.mutex.Unlock()
 
-		kj.cookieMap[domain.Host] = make(map[string]*http.Cookie, 16)
+		kj.cookieMap[domain.Hostname()] = make(map[string]*http.Cookie, 16)
 		done <- true
 	}()
 
