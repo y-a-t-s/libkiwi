@@ -26,10 +26,8 @@ func NewKF(hc http.Client, host string, cookies string) (kf *KF, err error) {
 		return
 	}
 
-	jar, err := NewKiwiJar(u, cookies)
-	if err != nil {
-		return
-	}
+	jar := NewKiwiJar()
+	jar.ParseString(u, cookies)
 	hc.Jar = jar
 
 	kf = &KF{
@@ -95,7 +93,7 @@ func (kf *KF) solveKiwiFlare(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = firebird.Submit(kf.Client, kf.domain.String(), s)
+	_, err = firebird.Submit(kf.Client, s)
 	if err != nil {
 		return err
 	}
