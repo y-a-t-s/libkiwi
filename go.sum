@@ -4,6 +4,8 @@ github.com/minio/sha256-simd v1.0.1 h1:6kaan5IFmwTNynnKKpDHe6FWHohJOHhCPchzK49dz
 github.com/minio/sha256-simd v1.0.1/go.mod h1:Pz6AKMiUdngCLpeTL/RJY1M9rUuPMYujV5xJjtbRSN8=
 github.com/y-a-t-s/firebird v0.0.0-20240927151147-c1c3219d176b h1:zX9Hj9mK7cSExqPUxdO2LS0OsEpflRqGu94yC1BuDfU=
 github.com/y-a-t-s/firebird v0.0.0-20240927151147-c1c3219d176b/go.mod h1:aq9EHq1B6MDC0RdIRbcFHI5SsGaeztoMjL7tRdgJCAQ=
+github.com/y-a-t-s/kiwijar v0.0.0-20241202190418-813d7ca625d8 h1:0PX2ayEHWoVubMT+IKdupf29q538szmBmdzCn30fJuA=
+github.com/y-a-t-s/kiwijar v0.0.0-20241202190418-813d7ca625d8/go.mod h1:3FWsCf08sDaZGUA0yXpwWSvIfYUFvuOL7Q1fftseDjc=
 golang.org/x/net v0.28.0 h1:a9JDOJc5GMUJ0+UDqmLT86WiEy7iWyIhz8gz8E4e5hE=
 golang.org/x/net v0.28.0/go.mod h1:yqtgsTWOOnlGLG9GFRrK3++bGOUEkNBoHZc8MEDWPNg=
 golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=

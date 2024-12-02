@@ -4,12 +4,13 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"testing"
+
+	"github.com/y-a-t-s/kiwijar"
 )
 
-const TEST_HOST = "kiwifarms.st"
+const TEST_HOST = "kiwifarms.net"
 
 func TestGetPage(t *testing.T) {
 	cookies := os.Getenv("TEST_COOKIES")
@@ -28,12 +29,14 @@ func TestGetPage(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	log.Printf("Response status code: %d\n", resp.StatusCode)
+	log.Printf("Response status code: %d\n\n", resp.StatusCode)
 	for k, v := range resp.Header {
 		if len(v) > 0 {
 			log.Printf("%s: %s\n", k, v[0])
 		}
 	}
+	log.Printf("Response host: %s\n\n", kf.domain)
+	log.Printf("Cookies: %s\n", kf.Client.Jar.(*kiwijar.KiwiJar).CookieString(kf.domain))
 }
 
 func TestRefreshSession(t *testing.T) {
@@ -62,10 +65,5 @@ func TestCookieString(t *testing.T) {
 		t.Error(err)
 	}
 
-	u, err := url.Parse("https://" + TEST_HOST)
-	if err != nil {
-		t.Error(err)
-	}
-
-	log.Println("Cookies from jar: " + kf.Client.Jar.(*KiwiJar).CookieString(u))
+	log.Println("Cookies from jar: " + kf.Client.Jar.(*kiwijar.KiwiJar).CookieString(kf.domain))
 }

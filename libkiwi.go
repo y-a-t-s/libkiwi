@@ -2,12 +2,13 @@ package libkiwi
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 
 	"github.com/y-a-t-s/firebird"
+	"github.com/y-a-t-s/kiwijar"
 )
 
 type KF struct {
@@ -17,18 +18,14 @@ type KF struct {
 
 // Supply your own http.Client to route through any proxies.
 func NewKF(hc http.Client, host string, cookies string) (kf *KF, err error) {
-	_, host, err = splitProtocol(host)
-	if err != nil {
-		return
-	}
-	u, err := url.Parse("https://" + host)
+	u, err := parseHost(host)
 	if err != nil {
 		return
 	}
 
-	jar := NewKiwiJar()
+	jar := kiwijar.KiwiJar{}
 	jar.ParseString(u, cookies)
-	hc.Jar = jar
+	hc.Jar = &jar
 
 	kf = &KF{
 		Client: hc,
@@ -39,11 +36,6 @@ func NewKF(hc http.Client, host string, cookies string) (kf *KF, err error) {
 }
 
 func (kf *KF) GetPage(ctx context.Context, u *url.URL) (resp *http.Response, err error) {
-	if u == nil {
-		err = errors.New("Received nil URL.")
-		return
-	}
-
 	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
 	if err != nil {
 		return
@@ -52,6 +44,12 @@ func (kf *KF) GetPage(ctx context.Context, u *url.URL) (resp *http.Response, err
 	resp, err = kf.Client.Do(req)
 	if err != nil {
 		return
+	}
+	hn := resp.Request.URL.Hostname()
+	if hn != kf.domain.Hostname() {
+		jar := kf.Client.Jar.(*kiwijar.KiwiJar)
+		jar.SetCookies(resp.Request.URL, jar.Cookies(kf.domain))
+		kf.domain.Host = hn
 	}
 
 	// KiwiFlare redirect is signaled by 203 status.
@@ -69,7 +67,7 @@ func (kf *KF) GetPage(ctx context.Context, u *url.URL) (resp *http.Response, err
 
 func (kf *KF) RefreshSession(ctx context.Context) (tk string, err error) {
 	// Clear any existing session token to request a new one.
-	kf.Client.Jar.(*KiwiJar).SetCookie(kf.domain, &http.Cookie{
+	kf.Client.Jar.(*kiwijar.KiwiJar).SetCookie(kf.domain, &http.Cookie{
 		Name:  "xf_session",
 		Value: "",
 	})
@@ -99,4 +97,13 @@ func (kf *KF) solveKiwiFlare(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func parseHost(host string) (*url.URL, error) {
+	// Try prepending protocol if it seems to be missing.
+	if !strings.Contains(strings.Split(host, "/")[0], "://") {
+		host = "https://" + host
+	}
+
+	return url.Parse(host)
 }
