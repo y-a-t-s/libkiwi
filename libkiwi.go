@@ -32,6 +32,18 @@ func NewKF(hc http.Client, host string, cookies string) (kf *KF, err error) {
 		domain: u,
 	}
 
+	// Update host url in case we get redirected across domains.
+	hc.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		hn := req.URL.Hostname()
+		if hn != u.Hostname() {
+			// Deliberately set to Hostname() and not Host.
+			// This excludes any extra shit like ports.
+			u.Host = hn
+		}
+
+		return nil
+	}
+
 	return
 }
 
@@ -101,7 +113,7 @@ func (kf *KF) solveKiwiFlare(ctx context.Context) error {
 
 func parseHost(host string) (*url.URL, error) {
 	// Try prepending protocol if it seems to be missing.
-	if !strings.Contains(strings.Split(host, "/")[0], "://") {
+	if !strings.Contains(host, "://") {
 		host = "https://" + host
 	}
 
